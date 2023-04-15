@@ -1,8 +1,8 @@
 # -*- coding: utf8
 
 
-from flask import Flask, make_response
-from flask import redirect
+from flask import Flask
+from flask import make_response
 from flask import request
 
 
@@ -36,18 +36,22 @@ def to_list(cookie: str) -> list:
     return cookie.split()
 
 
+def embed(form_url):
+    return f'<iframe src="{form_url}?embedded=true" style="min-height:100vh;width:100%" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>'
+
+
 @app.route('/')
 def hello():
     seen = to_list(request.cookies.get('seen', ''))
-
     to_choose = list(set(URLS).difference(set(seen)))
     random.shuffle(to_choose)
 
     if len(to_choose) > 0:
         url = to_choose[0]
         seen.append(url)
-        resp = redirect(url, code=302)
+        resp = make_response(embed(url))
         resp.set_cookie('seen', ' '.join(seen))
+        return resp
     else:
         resp = make_response('Obrigado!')
     return resp
